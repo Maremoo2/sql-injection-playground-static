@@ -10,6 +10,8 @@ const passwordEl = $('password');
 const sqlEl = $('constructed-sql');
 const vulnResult = $('vuln-result');
 const safeResult = $('safe-result');
+const usernameIndicator = $('username-indicator');
+const passwordIndicator = $('password-indicator');
 
 function escapeForSql(str) {
   // show how naive concatenation appears (not used to query)
@@ -23,48 +25,51 @@ function buildVulnerableSQL(username, password) {
 }
 
 // detect always-true math expressions like "2+2=4" (simple)
+// Return a list of matching always-true expressions found in the input string.
+// Each match is an object: { type: 'arith'|'eq'|'or', text: '1+1=2' }
+function findAlwaysTrueExpressions(str) {
+  const matches = [];
+  if (!str || typeof str !== 'string') return matches;
+
+  // arithmetic: a + b = c  (supports + - * /)
+  const arithRe = /([0-9]+)\s*([+\-\*\/])\s*([0-9]+)\s*=\s*([0-9]+)/g;
+  let m;
+  while ((m = arithRe.exec(str)) !== null) {
+    try {
+      const a = parseInt(m[1], 10);
+      const op = m[2];
+      const b = parseInt(m[3], 10);
+      const right = parseInt(m[4], 10);
+      let val;
+      if (op === '+') val = a + b;
+      else if (op === '-') val = a - b;
+      else if (op === '*') val = a * b;
+      else if (op === '/') val = b !== 0 ? a / b : null;
+      if (val === right) matches.push({ type: 'arith', text: m[0] });
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // numeric equality: 1 = 1
+  const eqRe = /([0-9]+)\s*=\s*([0-9]+)/g;
+  while ((m = eqRe.exec(str)) !== null) {
+    try {
+      const left = parseInt(m[1], 10);
+      const right = parseInt(m[2], 10);
+      if (left === right) matches.push({ type: 'eq', text: m[0] });
+    } catch (e) {}
+  }
+
+  // classic OR '1'='1' pattern
+  const orRe = /(\bOR\b|\bor\b)\s*['"]?\s*1\s*['"]?\s*=\s*['"]?\s*1/gi;
+  if (orRe.test(str)) matches.push({ type: 'or', text: "OR 1=1" });
+
+  return matches;
+}
+
 function mathEqualityIsTrue(str) {
-  // Find simple arithmetic equalities like:
-  //  - 2+2=4  or 10 + 2 = 12
-  //  - 5-3=2
-  //  - 3*4=12
-  //  - 8/2=4
-  // Also detect trivial numeric equality like 1 = 1
-
-  // 1) arithmetic expressions with two operands
-  const arith = str.match(/([0-9]+\s*[\+\-\*\/]\s*[0-9]+)\s*=\s*([0-9]+)/);
-  if (arith) {
-    try {
-      const left = arith[1].replace(/\s+/g, '');
-      const opMatch = left.match(/([0-9]+)\s*([\+\-\*\/])\s*([0-9]+)/);
-      if (opMatch) {
-        const a = parseInt(opMatch[1], 10);
-        const op = opMatch[2];
-        const b = parseInt(opMatch[3], 10);
-        const right = parseInt(arith[2], 10);
-        let val;
-        if (op === '+') val = a + b;
-        else if (op === '-') val = a - b;
-        else if (op === '*') val = a * b;
-        else if (op === '/') val = b !== 0 ? a / b : null;
-        return val === right;
-      }
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // 2) simple numeric equality like "1 = 1"
-  const eq = str.match(/([0-9]+)\s*=\s*([0-9]+)/);
-  if (eq) {
-    try {
-      return parseInt(eq[1], 10) === parseInt(eq[2], 10);
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return false;
+  return findAlwaysTrueExpressions(str).length > 0;
 }
 
 // detect classic OR always true pattern: ' OR '1'='1  (very basic)
@@ -75,8 +80,10 @@ function detectsClassicOrTrue(str) {
 // Simulated "execution" of the vulnerable query
 function simulateVulnerable(sql, username, password) {
   // If the constructed SQL contains an always-true expression, we simulate a bypass:
-  if (mathEqualityIsTrue(sql) || detectsClassicOrTrue(sql)) {
-    return { success: true, reason: 'Detected always-true expression in WHERE clause (simulated bypass)' };
+  const matches = findAlwaysTrueExpressions(sql);
+  if (matches.length > 0 || detectsClassicOrTrue(sql)) {
+    const details = matches.length > 0 ? matches.map(m => m.text).join(', ') : 'OR 1=1';
+    return { success: true, reason: `Detected always-true expression in WHERE clause (simulated bypass): ${details}` };
   }
 
   // else attempt to match exactly against the in-browser users list
@@ -116,6 +123,46 @@ function trySafe() {
 
 $('try-vuln').addEventListener('click', tryVulnerable);
 $('try-safe').addEventListener('click', trySafe);
+
+// Update the small username/password indicators based on the in-memory users list
+function updateFieldIndicators() {
+  const u = usernameEl.value.trim();
+  const p = passwordEl.value.trim();
+
+  // Username indicator: correct if username exists in users
+  const user = users.find(x => x.username === u);
+  if (!usernameIndicator) return;
+  if (!u) {
+    usernameIndicator.textContent = '';
+    usernameIndicator.className = 'field-indicator neutral';
+  } else if (user) {
+    usernameIndicator.textContent = 'Correct username';
+    usernameIndicator.className = 'field-indicator ok';
+  } else {
+    usernameIndicator.textContent = 'Unknown username';
+    usernameIndicator.className = 'field-indicator bad';
+  }
+
+  // Password indicator: green only if it matches the found user's password
+  if (!passwordIndicator) return;
+  if (!p) {
+    passwordIndicator.textContent = '';
+    passwordIndicator.className = 'field-indicator neutral';
+  } else if (user && user.password === p) {
+    passwordIndicator.textContent = 'Correct password';
+    passwordIndicator.className = 'field-indicator ok';
+  } else {
+    passwordIndicator.textContent = 'Wrong password';
+    passwordIndicator.className = 'field-indicator bad';
+  }
+}
+
+// wire indicators to live input events
+usernameEl.addEventListener('input', updateFieldIndicators);
+passwordEl.addEventListener('input', updateFieldIndicators);
+
+// update on load
+updateFieldIndicators();
 
 // prefill example
 usernameEl.value = 'alice';

@@ -15,12 +15,18 @@
       <form id="demo-form" onsubmit="return false;">
         <label>
           Username
-          <input id="username" placeholder="e.g. alice" />
+          <div class="input-with-indicator">
+            <input id="username" placeholder="e.g. alice" />
+            <span id="username-indicator" class="field-indicator" aria-hidden="true"></span>
+          </div>
         </label>
 
         <label>
           Password
-          <input id="password" placeholder="e.g. wonderland" />
+          <div class="input-with-indicator">
+            <input id="password" placeholder="e.g. wonderland" />
+            <span id="password-indicator" class="field-indicator" aria-hidden="true"></span>
+          </div>
         </label>
 
         <div class="buttons">
