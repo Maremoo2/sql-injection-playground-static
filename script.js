@@ -104,6 +104,24 @@ function tryVulnerable() {
   const result = simulateVulnerable(constructed, u, p);
   vulnResult.textContent = result.success ? `VULNERABLE: ${result.reason}` : `VULNERABLE: ${result.reason}`;
   vulnResult.style.color = result.success ? 'crimson' : '#111';
+
+  // If the vulnerable simulation detected an always-true expression, show a bypass indicator on the password field
+  try {
+    const matches = findAlwaysTrueExpressions(constructed);
+    const orMatch = detectsClassicOrTrue(constructed);
+    if ((matches && matches.length > 0) || orMatch) {
+      if (passwordIndicator) {
+        passwordIndicator.textContent = 'Bypass oppdaget';
+        passwordIndicator.className = 'field-indicator bypass';
+      }
+      // keep username indicator as-is (it already shows whether username exists)
+    } else {
+      // otherwise refresh normal indicators
+      updateFieldIndicators();
+    }
+  } catch (e) {
+    // ignore errors
+  }
 }
 
 function trySafe() {
@@ -136,10 +154,10 @@ function updateFieldIndicators() {
     usernameIndicator.textContent = '';
     usernameIndicator.className = 'field-indicator neutral';
   } else if (user) {
-    usernameIndicator.textContent = 'Correct username';
+    usernameIndicator.textContent = 'Riktig brukernavn';
     usernameIndicator.className = 'field-indicator ok';
   } else {
-    usernameIndicator.textContent = 'Unknown username';
+    usernameIndicator.textContent = 'Ukjent brukernavn';
     usernameIndicator.className = 'field-indicator bad';
   }
 
@@ -149,10 +167,10 @@ function updateFieldIndicators() {
     passwordIndicator.textContent = '';
     passwordIndicator.className = 'field-indicator neutral';
   } else if (user && user.password === p) {
-    passwordIndicator.textContent = 'Correct password';
+    passwordIndicator.textContent = 'Riktig passord';
     passwordIndicator.className = 'field-indicator ok';
   } else {
-    passwordIndicator.textContent = 'Wrong password';
+    passwordIndicator.textContent = 'Feil passord';
     passwordIndicator.className = 'field-indicator bad';
   }
 }
