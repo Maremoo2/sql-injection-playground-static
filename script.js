@@ -27,15 +27,27 @@ function buildVulnerableSQL(username, password) {
 // detect always-true math expressions like "2+2=4" (simple)
 // Return a list of matching always-true expressions found in the input string.
 // Each match is an object: { type: 'arith'|'eq'|'or', text: '1+1=2' }
-function findAlwaysTrueExpressions(str) {
+function findAlwaysTrueExpressions(sql) {
   const matches = [];
-  if (!str || typeof str !== 'string') return matches;
+  if (!sql || typeof sql !== 'string') return matches;
+
+  // helper: is position inside single quotes?
+  function isInsideSingleQuotes(s, index) {
+    let inQuote = false;
+    for (let i = 0; i < index && i < s.length; i++) {
+      if (s[i] === "'") inQuote = !inQuote;
+    }
+    return inQuote;
+  }
 
   // arithmetic: a + b = c  (supports + - * /)
   const arithRe = /([0-9]+)\s*([+\-\*\/])\s*([0-9]+)\s*=\s*([0-9]+)/g;
   let m;
-  while ((m = arithRe.exec(str)) !== null) {
+  while ((m = arithRe.exec(sql)) !== null) {
     try {
+      const start = m.index;
+      const end = start + m[0].length;
+      if (isInsideSingleQuotes(sql, start)) continue; // skip matches inside quoted literals
       const a = parseInt(m[1], 10);
       const op = m[2];
       const b = parseInt(m[3], 10);
@@ -45,7 +57,7 @@ function findAlwaysTrueExpressions(str) {
       else if (op === '-') val = a - b;
       else if (op === '*') val = a * b;
       else if (op === '/') val = b !== 0 ? a / b : null;
-      if (val === right) matches.push({ type: 'arith', text: m[0] });
+      if (val === right) matches.push({ type: 'arith', text: m[0], index: start });
     } catch (e) {
       // ignore
     }
@@ -53,17 +65,23 @@ function findAlwaysTrueExpressions(str) {
 
   // numeric equality: 1 = 1
   const eqRe = /([0-9]+)\s*=\s*([0-9]+)/g;
-  while ((m = eqRe.exec(str)) !== null) {
+  while ((m = eqRe.exec(sql)) !== null) {
     try {
+      const start = m.index;
+      if (isInsideSingleQuotes(sql, start)) continue;
       const left = parseInt(m[1], 10);
       const right = parseInt(m[2], 10);
-      if (left === right) matches.push({ type: 'eq', text: m[0] });
+      if (left === right) matches.push({ type: 'eq', text: m[0], index: start });
     } catch (e) {}
   }
 
-  // classic OR '1'='1' pattern
+  // classic OR '1'='1' pattern (we allow it even if inside quotes because attackers often use closing-quote techniques)
   const orRe = /(\bOR\b|\bor\b)\s*['"]?\s*1\s*['"]?\s*=\s*['"]?\s*1/gi;
-  if (orRe.test(str)) matches.push({ type: 'or', text: "OR 1=1" });
+  while ((m = orRe.exec(sql)) !== null) {
+    const start = m.index;
+    // OR patterns are likely intentional injection when they appear; accept them even if inside quotes
+    matches.push({ type: 'or', text: m[0], index: start });
+  }
 
   return matches;
 }
