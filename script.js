@@ -31,23 +31,16 @@ function findAlwaysTrueExpressions(sql) {
   const matches = [];
   if (!sql || typeof sql !== 'string') return matches;
 
-  // helper: is position inside single quotes?
-  function isInsideSingleQuotes(s, index) {
-    let inQuote = false;
-    for (let i = 0; i < index && i < s.length; i++) {
-      if (s[i] === "'") inQuote = !inQuote;
-    }
-    return inQuote;
-  }
+  // Note: we intentionally do NOT skip matches inside single-quoted literals
+  // so expressions like '2+2=4' will be treated as always-true for the demo.
 
   // arithmetic: a + b = c  (supports + - * /)
   const arithRe = /([0-9]+)\s*([+\-\*\/])\s*([0-9]+)\s*=\s*([0-9]+)/g;
   let m;
   while ((m = arithRe.exec(sql)) !== null) {
     try {
-      const start = m.index;
-      const end = start + m[0].length;
-      if (isInsideSingleQuotes(sql, start)) continue; // skip matches inside quoted literals
+  const start = m.index;
+  const end = start + m[0].length;
       const a = parseInt(m[1], 10);
       const op = m[2];
       const b = parseInt(m[3], 10);
@@ -68,7 +61,6 @@ function findAlwaysTrueExpressions(sql) {
   while ((m = eqRe.exec(sql)) !== null) {
     try {
       const start = m.index;
-      if (isInsideSingleQuotes(sql, start)) continue;
       const left = parseInt(m[1], 10);
       const right = parseInt(m[2], 10);
       if (left === right) matches.push({ type: 'eq', text: m[0], index: start });
