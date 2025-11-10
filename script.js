@@ -162,6 +162,12 @@ function trySafe() {
     safeResult.textContent = 'SAFE: Login failed (no SQL parsing/evaluation performed)';
     safeResult.style.color = 'black';
   }
+  // Refresh the small field indicators so the password field shows Wrong/Correct according to the safe check
+  try {
+    updateFieldIndicators();
+  } catch (e) {
+    // ignore
+  }
 }
 
 $('try-vuln').addEventListener('click', tryVulnerable);
