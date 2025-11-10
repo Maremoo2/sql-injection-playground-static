@@ -38,6 +38,12 @@ input { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #d
 
 .devtools-hint { margin-top:10px; font-size:0.9rem; color:var(--muted); }
 
+.auto-run-toggle { display:block; margin-top:10px; font-size:0.95rem; color:var(--muted); }
+
+.advanced { margin-top:14px; background:#fbfeff; padding:10px 12px; border-radius:6px; border:1px solid #eef6ff; }
+.advanced summary { font-weight:700; cursor:pointer; }
+.advanced p, .advanced li { color: #334155; }
+
 .buttons { margin-top: 8px; display:flex; gap:8px; }
 button { padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; background: var(--accent); color: white; font-weight: 600; }
 button:active { transform: translateY(1px); }

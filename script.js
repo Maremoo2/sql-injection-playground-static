@@ -217,9 +217,16 @@ try {
   if (u) usernameEl.value = u;
   if (p) passwordEl.value = p;
   updateFieldIndicators();
-  // If run is set, auto-run the vulnerable simulation so link recipients see the effect immediately
-  if (run === '1') {
-    tryVulnerable();
+  // If run is set and the autorun toggle is checked, auto-run the vulnerable simulation
+  try {
+    const autorunToggle = document.getElementById('autorun-toggle');
+    const autorunEnabled = autorunToggle ? autorunToggle.checked : true;
+    if (run === '1' && autorunEnabled) {
+      tryVulnerable();
+    }
+  } catch (e) {
+    // ignore toggle errors
+    if (run === '1') tryVulnerable();
   }
 } catch (e) {
   // ignore URL parsing errors

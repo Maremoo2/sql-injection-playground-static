@@ -8,47 +8,48 @@
 </head>
 <body>
   <main class="container">
-    <h1>SQL Injection Playground — simulated (safe)</h1>
-    <p class="warning">This is a <strong>client-side simulation</strong>. No real database or server is used. Safe to publish publicly.</p>
+  <h1>SQL Injection Playground — simulert (sikkert)</h1>
+  <p class="warning">Dette er en <strong>klient-side simulering</strong>. Ingen ekte database eller server brukes. Trygt å publisere offentlig.</p>
 
     <section class="forms">
       <form id="demo-form" onsubmit="return false;">
         <label>
-          Username
+          Brukernavn
           <div class="input-with-indicator">
-            <input id="username" placeholder="e.g. alice" />
+            <input id="username" placeholder="f.eks. alice" />
             <span id="username-indicator" class="field-indicator" aria-hidden="true"></span>
           </div>
         </label>
 
         <label>
-          Password
+          Passord
           <div class="input-with-indicator">
-            <input id="password" placeholder="e.g. wonderland" />
+            <input id="password" placeholder="f.eks. wonderland" />
             <span id="password-indicator" class="field-indicator" aria-hidden="true"></span>
           </div>
         </label>
 
         <div class="buttons">
-          <button id="try-vuln" type="button">Try Vulnerable (simulated)</button>
-          <button id="try-safe" type="button">Try Safe (strict check)</button>
+          <button id="try-vuln" type="button">Prøv sårbar (simulert)</button>
+          <button id="try-safe" type="button">Prøv sikker (streng sjekk)</button>
         </div>
+        <p class="demo-instructions"><strong>Prøv dette:</strong> Skriv et riktig passord (f.eks. <code>wonderland</code>) for å logge inn, eller eksperimenter med et alltid-sant uttrykk (f.eks. <code>2+2 = 4</code> eller <code>' OR '1'='1</code>) for å se at den sårbare simuleringen omgår innlogging. Et galt passord vil bli nektet av den sikre sjekken.</p>
 
-  <p class="demo-instructions"><strong>Try these:</strong> Type a correct password (e.g. <code>wonderland</code>) to log in, or experiment with an always-true expression (e.g. <code>2+2 = 4</code> or <code>' OR '1'='1</code>) to see the vulnerable simulation bypass. A wrong password will be denied by the safe check.</p>
+        <p id="devtools-hint" class="devtools-hint">Tips: Åpne DevTools → Console for å se den konstruerte SQL-strengen (nyttig for tekniske brukere).</p>
 
-  <p id="devtools-hint" class="devtools-hint">Tip: Open DevTools → Console to see the constructed SQL (useful for technical viewers).</p>
+        <label class="auto-run-toggle"><input type="checkbox" id="autorun-toggle" checked /> Kjør automatisk ved åpning av forhåndsutfylt lenke</label>
 
       </form>
 
       <div class="results">
         <article>
-          <h3>Vulnerable — constructed SQL (simulated)</h3>
+          <h3>Sårbar — konstruert SQL (simulert)</h3>
           <pre id="constructed-sql"></pre>
           <div id="vuln-result" class="result-box"></div>
         </article>
 
         <article>
-          <h3>Safe — parameterized behaviour (real check)</h3>
+          <h3>Sikker — parameterisert oppførsel (reell sjekk)</h3>
           <pre id="safe-info">SELECT id, username FROM users WHERE username = ? AND password = ?;</pre>
           <div id="safe-result" class="result-box"></div>
         </article>
@@ -56,18 +57,29 @@
     </section>
 
     <section class="explain">
-      <h3>How this demo works</h3>
+      <h3>Hvordan denne demoen virker</h3>
       <ol>
-        <li>The "Vulnerable" button shows how an application that concatenates inputs builds SQL. The demo then <em>simulates</em> what would happen if the DB evaluated the WHERE clause — it detects always-true expressions like math equalities (<code>2+2=4</code>) and typical injection patterns (<code>' OR '1'='1</code>).</li>
-        <li>The "Safe" button demonstrates a correct check: it compares inputs to a fixed in-browser user list and <strong>does not</strong> parse or evaluate the input as SQL.</li>
+        <li>Knappen «Sårbar» viser hvordan en applikasjon som setter sammen brukerinput direkte kan bygge sårbar SQL. Demoen <em>simulerer</em> hva som skjer hvis databasen evaluerer WHERE-betingelsen — den oppdager alltid-sanne uttrykk som matematiske likninger (<code>2+2=4</code>) og typiske injeksjonsmønstre (<code>' OR '1'='1</code>).</li>
+        <li>Knappen «Sikker» demonstrerer en korrekt sjekk: den sammenligner input mot en fast bruker-liste i nettleseren og <strong>tolker ikke</strong> input som SQL.</li>
       </ol>
       <p>Try inputs such as:</p>
       <ul>
-        <li><code>alice</code> / <code>wonderland</code> — valid credentials (safe and vulnerable succeed)</li>
-        <li><code>alice</code> / <code>' OR '1'='1</code> — vulnerable simulation may bypass, safe will fail</li>
-        <li><code>bob</code> / <code>builder</code> — valid credentials</li>
-        <li><code>whatever</code> / <code>2+2 = 4</code> — demonstrates math-expression bypass detection in the simulation</li>
+        <li><code>alice</code> / <code>wonderland</code> — gyldige brukerdetaljer (suksess i både sårbar og sikker sjekk)</li>
+        <li><code>alice</code> / <code>' OR '1'='1</code> — sårbar simulering kan omgå, sikker vil feile</li>
+        <li><code>bob</code> / <code>builder</code> — gyldige brukerdetaljer</li>
+        <li><code>whatever</code> / <code>2+2 = 4</code> — demonstrerer matematisk bypass i simuleringen</li>
       </ul>
+
+      <details class="advanced">
+        <summary>Avansert (regexer og deteksjon)</summary>
+        <p>Demoen bruker enkle mønstre for å oppdage alltid-sanne uttrykk i den konstruerte WHERE-klause. Kortversjon:</p>
+        <ul>
+          <li><strong>Aritmetikk</strong>: mønstre som <code>a + b = c</code> (støtte for +, -, *, /). Demoen evaluerer venstre side numerisk og sammenligner med høyre side; hvis lik, oppdages bypass (f.eks. <code>1+1=2</code>).</li>
+          <li><strong>Likhet</strong>: enkle likheter som <code>1 = 1</code> blir også oppdaget.</li>
+          <li><strong>OR-mønster</strong>: klassiske injeksjonsmønstre som <code>' OR '1'='1</code> blir funnet med en enkel regex.</li>
+        </ul>
+        <p>Merk: dette er for demonstrasjon. Virkelige SQL-parsere er mer komplekse, og denne demoen bruker forenklede regler for å gjøre poenget tydelig.</p>
+      </details>
 
       <p class="ethic">Ethics note: this repo is for education only. Never test against systems you do not own or have permission to test.</p>
     </section>
