@@ -117,8 +117,8 @@ function tryVulnerable() {
   const orMatchForDisplay = detectsClassicOrTrue(constructed);
   if (result.success) {
     if ((matchesForDisplay && matchesForDisplay.length > 0) || orMatchForDisplay) {
-      const expr = (matchesForDisplay && matchesForDisplay.length > 0) ? matchesForDisplay.map(m => m.text).join(', ') : 'OR 1=1';
-      vulnResult.textContent = `VULNERABLE: Bypassed — ${expr}`;
+      // Friendly, non-technical label when the WHERE clause evaluates true
+      vulnResult.textContent = `VULNERABLE: statement True`;
     } else {
       vulnResult.textContent = `VULNERABLE: Login succeeded (credentials match)`;
     }
