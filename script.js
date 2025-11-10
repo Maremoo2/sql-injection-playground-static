@@ -24,18 +24,47 @@ function buildVulnerableSQL(username, password) {
 
 // detect always-true math expressions like "2+2=4" (simple)
 function mathEqualityIsTrue(str) {
-  // find patterns like 2+2=4 or  10 + 2 = 12 (numbers only)
-  const m = str.match(/([0-9]+\s*\+\s*[0-9]+)\s*=\s*([0-9]+)/);
-  if (!m) return false;
-  try {
-    const left = m[1].replace(/\s+/g, '');
-    const parts = left.split('+').map(x => parseInt(x, 10));
-    const sum = parts.reduce((a,b)=>a+b,0);
-    const right = parseInt(m[2], 10);
-    return sum === right;
-  } catch(e) {
-    return false;
+  // Find simple arithmetic equalities like:
+  //  - 2+2=4  or 10 + 2 = 12
+  //  - 5-3=2
+  //  - 3*4=12
+  //  - 8/2=4
+  // Also detect trivial numeric equality like 1 = 1
+
+  // 1) arithmetic expressions with two operands
+  const arith = str.match(/([0-9]+\s*[\+\-\*\/]\s*[0-9]+)\s*=\s*([0-9]+)/);
+  if (arith) {
+    try {
+      const left = arith[1].replace(/\s+/g, '');
+      const opMatch = left.match(/([0-9]+)\s*([\+\-\*\/])\s*([0-9]+)/);
+      if (opMatch) {
+        const a = parseInt(opMatch[1], 10);
+        const op = opMatch[2];
+        const b = parseInt(opMatch[3], 10);
+        const right = parseInt(arith[2], 10);
+        let val;
+        if (op === '+') val = a + b;
+        else if (op === '-') val = a - b;
+        else if (op === '*') val = a * b;
+        else if (op === '/') val = b !== 0 ? a / b : null;
+        return val === right;
+      }
+    } catch (e) {
+      return false;
+    }
   }
+
+  // 2) simple numeric equality like "1 = 1"
+  const eq = str.match(/([0-9]+)\s*=\s*([0-9]+)/);
+  if (eq) {
+    try {
+      return parseInt(eq[1], 10) === parseInt(eq[2], 10);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return false;
 }
 
 // detect classic OR always true pattern: ' OR '1'='1  (very basic)
@@ -62,9 +91,12 @@ function tryVulnerable() {
   const constructed = buildVulnerableSQL(u, p);
   sqlEl.textContent = constructed;
 
+  // log constructed SQL so people can inspect it in DevTools
+  console.log('Constructed SQL (simulated):', constructed);
+
   const result = simulateVulnerable(constructed, u, p);
   vulnResult.textContent = result.success ? `VULNERABLE: ${result.reason}` : `VULNERABLE: ${result.reason}`;
-  vulnResult.style.color = result.success ? 'green' : 'black';
+  vulnResult.style.color = result.success ? 'crimson' : '#111';
 }
 
 function trySafe() {
@@ -89,3 +121,30 @@ $('try-safe').addEventListener('click', trySafe);
 usernameEl.value = 'alice';
 passwordEl.value = 'wonderland';
 tryVulnerable();
+
+// Add a small "copy link" button next to the Safe button so people can copy the demo URL for sharing.
+try {
+  const safeBtn = document.getElementById('try-safe');
+  if (safeBtn && safeBtn.parentNode) {
+    const copyBtn = document.createElement('button');
+    copyBtn.type = 'button';
+    copyBtn.textContent = 'Copy demo link';
+    copyBtn.className = 'copy-link-btn';
+    copyBtn.addEventListener('click', () => {
+      const url = location.href;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+          copyBtn.textContent = 'Link copied!';
+          setTimeout(() => copyBtn.textContent = 'Copy demo link', 1400);
+        }).catch(() => {
+          alert('Copy failed — please copy the URL manually from the address bar');
+        });
+      } else {
+        prompt('Copy this URL', url);
+      }
+    });
+    safeBtn.parentNode.appendChild(copyBtn);
+  }
+} catch (e) {
+  // non-fatal
+}
