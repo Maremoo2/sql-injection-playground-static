@@ -7,9 +7,9 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="container">
+  <main class="container slim">
     <h1>SQL Injection Playground — simulated (safe)</h1>
-    <p class="warning">This is a <strong>client-side simulation</strong>. No real database or server is used. Safe to publish publicly.</p>
+    <p class="warning small">Safe, client-side demo — no server required.</p>
 
     <section class="forms">
       <form id="demo-form" onsubmit="return false;">
@@ -30,64 +30,42 @@
         </label>
 
         <div class="buttons">
-          <button id="try-vuln" type="button">Try Vulnerable (simulated)</button>
-          <button id="try-safe" type="button">Try Safe (strict check)</button>
+          <button id="try-vuln" type="button">Try Vulnerable</button>
+          <button id="try-safe" type="button">Try Safe</button>
+          <button id="copy-link" type="button" class="copy-link-btn">Copy demo link</button>
         </div>
 
-        <p class="demo-instructions"><strong>Try these:</strong> Type a correct password (e.g. <code>wonderland</code>) to log in, or experiment with an always-true expression (e.g. <code>2+2 = 4</code> or <code>' OR '1'='1</code>) to see the vulnerable simulation bypass. A wrong password will be denied by the safe check.</p>
+        <div class="info-row">
+          <details class="info-small">
+            <summary>About this demo</summary>
+            <p>Client-side simulation that shows how unsafe string concatenation can let user input change SQL logic. Safe to share.</p>
+          </details>
 
-        <p id="devtools-hint" class="devtools-hint">Tip: Open DevTools → Console to see the constructed SQL (useful for technical viewers).</p>
+          <details class="info-small">
+            <summary>How to use</summary>
+            <p>Try a normal credential (alice/wonderland) or an always-true expression (e.g. <code>2+2=4</code>) as password and click <em>Try Vulnerable</em>.</p>
+          </details>
+        </div>
 
       </form>
 
       <div class="results">
         <article>
           <h3>Vulnerable — constructed SQL (simulated)</h3>
+          <p class="panel-explain">This shows the exact SQL text created by naively joining your inputs into the command — if input contains SQL-like expressions it can change what the query does.</p>
           <pre id="constructed-sql"></pre>
           <div id="vuln-result" class="result-box"></div>
-          <p class="panel-explain">This panel shows the SQL that would be constructed by unsafe string concatenation. If the WHERE clause contains an always-true expression (e.g. <code>2+2=4</code>), the simulation treats it as a bypass.</p>
         </article>
 
         <article>
-          <h3>Safe — parameterized behaviour (real check)</h3>
+          <h3>Safe — parameterized behaviour</h3>
+          <p class="panel-explain">This shows how parameterized queries keep your input separate from the SQL itself — the database treats the input only as data, not as part of the command.</p>
           <pre id="safe-info">SELECT id, username FROM users WHERE username = ? AND password = ?;</pre>
           <div id="safe-result" class="result-box"></div>
-          <p class="panel-explain">This panel shows the correct, parameterized approach: inputs are treated as data and cannot change the SQL structure.</p>
         </article>
       </div>
     </section>
-
-    <section class="explain">
-      <h3>Hvordan denne demoen virker</h3>
-      <ol>
-        <li>Knappen «Sårbar» viser hvordan en applikasjon som setter sammen brukerinput direkte kan bygge sårbar SQL. Demoen <em>simulerer</em> hva som skjer hvis databasen evaluerer WHERE-betingelsen — den oppdager alltid-sanne uttrykk som matematiske likninger (<code>2+2=4</code>) og typiske injeksjonsmønstre (<code>' OR '1'='1</code>).</li>
-        <li>Knappen «Sikker» demonstrerer en korrekt sjekk: den sammenligner input mot en fast bruker-liste i nettleseren og <strong>tolker ikke</strong> input som SQL.</li>
-      </ol>
-      <p>Try inputs such as:</p>
-      <ul>
-        <li><code>alice</code> / <code>wonderland</code> — gyldige brukerdetaljer (suksess i både sårbar og sikker sjekk)</li>
-        <li><code>alice</code> / <code>' OR '1'='1</code> — sårbar simulering kan omgå, sikker vil feile</li>
-        <li><code>bob</code> / <code>builder</code> — gyldige brukerdetaljer</li>
-        <li><code>whatever</code> / <code>2+2 = 4</code> — demonstrerer matematisk bypass i simuleringen</li>
-      </ul>
-
-      <details class="advanced">
-        <summary>Avansert (regexer og deteksjon)</summary>
-        <p>Demoen bruker enkle mønstre for å oppdage alltid-sanne uttrykk i den konstruerte WHERE-klause. Kortversjon:</p>
-        <ul>
-          <li><strong>Aritmetikk</strong>: mønstre som <code>a + b = c</code> (støtte for +, -, *, /). Demoen evaluerer venstre side numerisk og sammenligner med høyre side; hvis lik, oppdages bypass (f.eks. <code>1+1=2</code>).</li>
-          <li><strong>Likhet</strong>: enkle likheter som <code>1 = 1</code> blir også oppdaget.</li>
-          <li><strong>OR-mønster</strong>: klassiske injeksjonsmønstre som <code>' OR '1'='1</code> blir funnet med en enkel regex.</li>
-        </ul>
-        <p>Merk: dette er for demonstrasjon. Virkelige SQL-parsere er mer komplekse, og denne demoen bruker forenklede regler for å gjøre poenget tydelig.</p>
-      </details>
-
-      <p class="ethic">Ethics note: this repo is for education only. Never test against systems you do not own or have permission to test.</p>
-    </section>
-
-    <footer>
-      <p>Made for LinkedIn demos. If you want a screencast script or a Norwegian caption, I can help write it.</p>
-    </footer>
+    
   </main>
 
   <script src="script.js"></script>
