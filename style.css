@@ -34,6 +34,9 @@ input { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #d
 .field-indicator.ok { background: #e6ffef; color: #064e3b; border: 1px solid #c6f6d5; }
 .field-indicator.bad { background: #fff1f2; color: #7f1d1d; border: 1px solid #fecaca; }
 .field-indicator.neutral { background: transparent; color: var(--muted); border: 1px solid transparent; }
+.field-indicator.bypass { background: #fff7ed; color: #92400e; border: 1px solid #fed7aa; }
+
+.devtools-hint { margin-top:10px; font-size:0.9rem; color:var(--muted); }
 
 .buttons { margin-top: 8px; display:flex; gap:8px; }
 button { padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; background: var(--accent); color: white; font-weight: 600; }
