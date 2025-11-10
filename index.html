@@ -30,9 +30,8 @@
         </label>
 
         <div class="buttons">
-          <button id="try-vuln" type="button">Try Vulnerable</button>
-          <button id="try-safe" type="button">Try Safe</button>
-          <button id="copy-link" type="button" class="copy-link-btn">Copy demo link</button>
+          <button id="try-vuln" type="button">Old (vulnerable)</button>
+          <button id="try-safe" type="button">New (safe)</button>
         </div>
 
         <div class="info-row">
@@ -52,7 +51,7 @@
       <div class="results">
         <article>
           <h3>Vulnerable — constructed SQL (simulated)</h3>
-          <p class="panel-explain">This shows the exact SQL text created by naively joining your inputs into the command — if input contains SQL-like expressions it can change what the query does.</p>
+          <p class="panel-explain">This shows the exact SQL text created by naively joining your inputs into the command — if input contains SQL-like expressions it can change what the query does. If the WHERE clause becomes always-true (for example entering <code>1+1=2</code>) the system may accept the login even without the real password.</p>
           <pre id="constructed-sql"></pre>
           <div id="vuln-result" class="result-box"></div>
         </article>

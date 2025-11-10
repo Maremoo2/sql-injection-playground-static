@@ -135,8 +135,8 @@ function tryVulnerable() {
     const orMatch = detectsClassicOrTrue(constructed);
     if ((matches && matches.length > 0) || orMatch) {
       if (passwordIndicator) {
-        // Show a short, positive indicator when the vulnerable sim is bypassed
-        passwordIndicator.textContent = 'Bypassed';
+        // For demo clarity, show the bypass as a "Correct password" indicator
+        passwordIndicator.textContent = 'Correct password';
         passwordIndicator.className = 'field-indicator ok';
       }
       // keep username indicator as-is (it already shows whether username exists)
@@ -212,44 +212,7 @@ usernameEl.value = 'alice';
 passwordEl.value = 'wonderland';
 tryVulnerable();
 
-// Add a small "copy link" button next to the Safe button so people can copy the demo URL for sharing (prefilled).
-try {
-  const safeBtn = document.getElementById('try-safe');
-  if (safeBtn && safeBtn.parentNode) {
-    const copyBtn = document.createElement('button');
-    copyBtn.type = 'button';
-    copyBtn.textContent = 'Copy demo link';
-    copyBtn.className = 'copy-link-btn';
-
-    function buildPrefillUrl(run = true) {
-      const params = new URLSearchParams();
-      const u = usernameEl.value.trim();
-      const p = passwordEl.value.trim();
-      if (u) params.set('username', u);
-      if (p) params.set('password', p);
-      if (run) params.set('run', '1');
-      return `${location.origin}${location.pathname}?${params.toString()}`;
-    }
-
-    copyBtn.addEventListener('click', () => {
-      const url = buildPrefillUrl(true);
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(() => {
-          copyBtn.textContent = 'Link copied!';
-          setTimeout(() => (copyBtn.textContent = 'Copy demo link'), 1400);
-        }).catch(() => {
-          alert('Copy failed — please copy the URL manually from the address bar');
-        });
-      } else {
-        prompt('Copy this URL', url);
-      }
-    });
-
-    safeBtn.parentNode.appendChild(copyBtn);
-  }
-} catch (e) {
-  // non-fatal
-}
+// (removed dynamic copy-link button; demo link button was removed to simplify UI)
 
 // On load: if URL has username/password params, prefill and optionally run the vulnerable simulation
 try {
