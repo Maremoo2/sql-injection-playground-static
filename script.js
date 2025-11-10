@@ -112,8 +112,22 @@ function tryVulnerable() {
   console.log('Constructed SQL (simulated):', constructed);
 
   const result = simulateVulnerable(constructed, u, p);
-  vulnResult.textContent = result.success ? `VULNERABLE: ${result.reason}` : `VULNERABLE: ${result.reason}`;
-  vulnResult.style.color = result.success ? 'crimson' : '#111';
+  // Decide messaging and color: show green for successful logins or simulated bypasses
+  const matchesForDisplay = findAlwaysTrueExpressions(constructed);
+  const orMatchForDisplay = detectsClassicOrTrue(constructed);
+  if (result.success) {
+    if ((matchesForDisplay && matchesForDisplay.length > 0) || orMatchForDisplay) {
+      const expr = (matchesForDisplay && matchesForDisplay.length > 0) ? matchesForDisplay.map(m => m.text).join(', ') : 'OR 1=1';
+      vulnResult.textContent = `VULNERABLE: Bypassed — ${expr}`;
+    } else {
+      vulnResult.textContent = `VULNERABLE: Login succeeded (credentials match)`;
+    }
+    // use the green used by the OK indicator
+    vulnResult.style.color = '#064e3b';
+  } else {
+    vulnResult.textContent = `VULNERABLE: ${result.reason}`;
+    vulnResult.style.color = '#111';
+  }
 
   // If the vulnerable simulation detected an always-true expression, show a bypass indicator on the password field
   try {
@@ -121,11 +135,9 @@ function tryVulnerable() {
     const orMatch = detectsClassicOrTrue(constructed);
     if ((matches && matches.length > 0) || orMatch) {
       if (passwordIndicator) {
-        // show approved/bypassed text in English
-        // if we have a matching expression, show it briefly
-        const expr = (matches && matches.length > 0) ? matches.map(m => m.text).join(', ') : (orMatch ? 'OR 1=1' : '');
-        passwordIndicator.textContent = expr ? `Approved — bypass detected: ${expr}` : 'Approved — bypass detected';
-        passwordIndicator.className = 'field-indicator bypass';
+        // Show a short, positive indicator when the vulnerable sim is bypassed
+        passwordIndicator.textContent = 'Bypassed';
+        passwordIndicator.className = 'field-indicator ok';
       }
       // keep username indicator as-is (it already shows whether username exists)
     } else {
