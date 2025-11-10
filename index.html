@@ -57,6 +57,21 @@
         </article>
 
         <article>
+          <details class="advanced" open>
+            <summary>Learn more — real incidents & further reading</summary>
+            <p class="panel-explain">Read short, trustworthy writeups and advisories about real SQL injection incidents and practical guidance.</p>
+            <ul>
+              <li><a href="https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/05-Testing_for_SQL_Injection" target="_blank" rel="noopener">OWASP — SQL Injection</a> — primer on the vulnerability and defenses (prepared statements, testing).</li>
+              <li><a href="https://portswigger.net/web-security/sql-injection/lab-login-bypass" target="_blank" rel="noopener">PortSwigger — Login bypass lab</a> — hands-on labs that mirror the bypass patterns shown here.</li>
+              <li><a href="https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-158a" target="_blank" rel="noopener">CISA advisory — MOVEit/CL0P</a> — advisory describing a high-impact exploitation campaign involving injection vectors.</li>
+              <li><a href="https://ico.org.uk" target="_blank" rel="noopener">UK ICO — TalkTalk (search)</a> — regulatory writeups and summaries of the 2015 TalkTalk breach.</li>
+              <li><a href="https://www.philadelphiafed.org/-/media/frbp/assets/consumer-finance/discussion-papers/d-2010-january-heartland-payment-systems.pdf" target="_blank" rel="noopener">Heartland analysis (PDF)</a> — academic/forensic-style analysis of a historic card-data breach.</li>
+            </ul>
+            <p class="panel-explain">These links point to reputable sources (OWASP, PortSwigger, CISA, ICO). Use them when explaining why parameterized queries and input validation matter.</p>
+          </details>
+        </article>
+
+        <article>
           <h3>Safe — parameterized behaviour</h3>
           <p class="panel-explain">This shows how parameterized queries keep your input separate from the SQL itself — the database treats the input only as data, not as part of the command.</p>
           <pre id="safe-info">SELECT id, username FROM users WHERE username = ? AND password = ?;</pre>
