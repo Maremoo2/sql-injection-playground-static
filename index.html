@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>SQL Injection Playground — simulated (safe)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>SQL Injection Playground — simulated (safe)</h1>
+    <p class="warning">This is a <strong>client-side simulation</strong>. No real database or server is used. Safe to publish publicly.</p>
+
+    <section class="forms">
+      <form id="demo-form" onsubmit="return false;">
+        <label>
+          Username
+          <input id="username" placeholder="e.g. alice" />
+        </label>
+
+        <label>
+          Password
+          <input id="password" placeholder="e.g. wonderland" />
+        </label>
+
+        <div class="buttons">
+          <button id="try-vuln" type="button">Try Vulnerable (simulated)</button>
+          <button id="try-safe" type="button">Try Safe (strict check)</button>
+        </div>
+      </form>
+
+      <div class="results">
+        <article>
+          <h3>Vulnerable — constructed SQL (simulated)</h3>
+          <pre id="constructed-sql"></pre>
+          <div id="vuln-result" class="result-box"></div>
+        </article>
+
+        <article>
+          <h3>Safe — parameterized behaviour (real check)</h3>
+          <pre id="safe-info">SELECT id, username FROM users WHERE username = ? AND password = ?;</pre>
+          <div id="safe-result" class="result-box"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="explain">
+      <h3>How this demo works</h3>
+      <ol>
+        <li>The "Vulnerable" button shows how an application that concatenates inputs builds SQL. The demo then <em>simulates</em> what would happen if the DB evaluated the WHERE clause — it detects always-true expressions like math equalities (<code>2+2=4</code>) and typical injection patterns (<code>' OR '1'='1</code>).</li>
+        <li>The "Safe" button demonstrates a correct check: it compares inputs to a fixed in-browser user list and <strong>does not</strong> parse or evaluate the input as SQL.</li>
+      </ol>
+      <p>Try inputs such as:</p>
+      <ul>
+        <li><code>alice</code> / <code>wonderland</code> — valid credentials (safe and vulnerable succeed)</li>
+        <li><code>alice</code> / <code>' OR '1'='1</code> — vulnerable simulation may bypass, safe will fail</li>
+        <li><code>bob</code> / <code>builder</code> — valid credentials</li>
+        <li><code>whatever</code> / <code>2+2 = 4</code> — demonstrates math-expression bypass detection in the simulation</li>
+      </ul>
+
+      <p class="ethic">Ethics note: this repo is for education only. Never test against systems you do not own or have permission to test.</p>
+    </section>
+
+    <footer>
+      <p>Made for LinkedIn demos. If you want a screencast script or a Norwegian caption, I can help write it.</p>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
