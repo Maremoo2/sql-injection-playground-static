@@ -8,50 +8,51 @@
 </head>
 <body>
   <main class="container">
-  <h1>SQL Injection Playground — simulert (sikkert)</h1>
-  <p class="warning">Dette er en <strong>klient-side simulering</strong>. Ingen ekte database eller server brukes. Trygt å publisere offentlig.</p>
+    <h1>SQL Injection Playground — simulated (safe)</h1>
+    <p class="warning">This is a <strong>client-side simulation</strong>. No real database or server is used. Safe to publish publicly.</p>
 
     <section class="forms">
       <form id="demo-form" onsubmit="return false;">
         <label>
-          Brukernavn
+          Username
           <div class="input-with-indicator">
-            <input id="username" placeholder="f.eks. alice" />
+            <input id="username" placeholder="e.g. alice" />
             <span id="username-indicator" class="field-indicator" aria-hidden="true"></span>
           </div>
         </label>
 
         <label>
-          Passord
+          Password
           <div class="input-with-indicator">
-            <input id="password" placeholder="f.eks. wonderland" />
+            <input id="password" placeholder="e.g. wonderland" />
             <span id="password-indicator" class="field-indicator" aria-hidden="true"></span>
           </div>
         </label>
 
         <div class="buttons">
-          <button id="try-vuln" type="button">Prøv sårbar (simulert)</button>
-          <button id="try-safe" type="button">Prøv sikker (streng sjekk)</button>
+          <button id="try-vuln" type="button">Try Vulnerable (simulated)</button>
+          <button id="try-safe" type="button">Try Safe (strict check)</button>
         </div>
-        <p class="demo-instructions"><strong>Prøv dette:</strong> Skriv et riktig passord (f.eks. <code>wonderland</code>) for å logge inn, eller eksperimenter med et alltid-sant uttrykk (f.eks. <code>2+2 = 4</code> eller <code>' OR '1'='1</code>) for å se at den sårbare simuleringen omgår innlogging. Et galt passord vil bli nektet av den sikre sjekken.</p>
 
-        <p id="devtools-hint" class="devtools-hint">Tips: Åpne DevTools → Console for å se den konstruerte SQL-strengen (nyttig for tekniske brukere).</p>
+        <p class="demo-instructions"><strong>Try these:</strong> Type a correct password (e.g. <code>wonderland</code>) to log in, or experiment with an always-true expression (e.g. <code>2+2 = 4</code> or <code>' OR '1'='1</code>) to see the vulnerable simulation bypass. A wrong password will be denied by the safe check.</p>
 
-        <label class="auto-run-toggle"><input type="checkbox" id="autorun-toggle" checked /> Kjør automatisk ved åpning av forhåndsutfylt lenke</label>
+        <p id="devtools-hint" class="devtools-hint">Tip: Open DevTools → Console to see the constructed SQL (useful for technical viewers).</p>
 
       </form>
 
       <div class="results">
         <article>
-          <h3>Sårbar — konstruert SQL (simulert)</h3>
+          <h3>Vulnerable — constructed SQL (simulated)</h3>
           <pre id="constructed-sql"></pre>
           <div id="vuln-result" class="result-box"></div>
+          <p class="panel-explain">This panel shows the SQL that would be constructed by unsafe string concatenation. If the WHERE clause contains an always-true expression (e.g. <code>2+2=4</code>), the simulation treats it as a bypass.</p>
         </article>
 
         <article>
-          <h3>Sikker — parameterisert oppførsel (reell sjekk)</h3>
+          <h3>Safe — parameterized behaviour (real check)</h3>
           <pre id="safe-info">SELECT id, username FROM users WHERE username = ? AND password = ?;</pre>
           <div id="safe-result" class="result-box"></div>
+          <p class="panel-explain">This panel shows the correct, parameterized approach: inputs are treated as data and cannot change the SQL structure.</p>
         </article>
       </div>
     </section>

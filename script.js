@@ -129,7 +129,10 @@ function tryVulnerable() {
     const orMatch = detectsClassicOrTrue(constructed);
     if ((matches && matches.length > 0) || orMatch) {
       if (passwordIndicator) {
-        passwordIndicator.textContent = 'Bypass oppdaget';
+        // show approved/bypassed text in English
+        // if we have a matching expression, show it briefly
+        const expr = (matches && matches.length > 0) ? matches.map(m => m.text).join(', ') : (orMatch ? 'OR 1=1' : '');
+        passwordIndicator.textContent = expr ? `Approved — bypass detected: ${expr}` : 'Approved — bypass detected';
         passwordIndicator.className = 'field-indicator bypass';
       }
       // keep username indicator as-is (it already shows whether username exists)
@@ -172,10 +175,10 @@ function updateFieldIndicators() {
     usernameIndicator.textContent = '';
     usernameIndicator.className = 'field-indicator neutral';
   } else if (user) {
-    usernameIndicator.textContent = 'Riktig brukernavn';
+    usernameIndicator.textContent = 'Correct username';
     usernameIndicator.className = 'field-indicator ok';
   } else {
-    usernameIndicator.textContent = 'Ukjent brukernavn';
+    usernameIndicator.textContent = 'Unknown username';
     usernameIndicator.className = 'field-indicator bad';
   }
 
@@ -185,10 +188,10 @@ function updateFieldIndicators() {
     passwordIndicator.textContent = '';
     passwordIndicator.className = 'field-indicator neutral';
   } else if (user && user.password === p) {
-    passwordIndicator.textContent = 'Riktig passord';
+    passwordIndicator.textContent = 'Correct password';
     passwordIndicator.className = 'field-indicator ok';
   } else {
-    passwordIndicator.textContent = 'Feil passord';
+    passwordIndicator.textContent = 'Wrong password';
     passwordIndicator.className = 'field-indicator bad';
   }
 }
