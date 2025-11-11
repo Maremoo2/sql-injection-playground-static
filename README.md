@@ -2,6 +2,10 @@
 
 This is a static, client-side simulation that demonstrates how SQL injection can allow bypasses such as `2+2=4` or `' OR '1'='1`. No server or real database is used — everything runs in the browser. That makes it safe to publish publicly (e.g., via GitHub Pages).
 
+Try the demo live (likely URL): https://maremoo2.github.io/sql-injection-playground-static/
+
+Note: If you published Pages to a different URL (or the site hasn't finished deploying), paste the actual Pages URL here and I'll update this link.
+
 ## How to publish
 1. Create a new GitHub repo and push these files to `main`.
 2. In the repo settings -> Pages, choose the `main` branch and root as the source.
