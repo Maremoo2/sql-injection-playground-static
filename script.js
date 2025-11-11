@@ -173,6 +173,29 @@ function trySafe() {
 $('try-vuln').addEventListener('click', tryVulnerable);
 $('try-safe').addEventListener('click', trySafe);
 
+// Share Demo button functionality
+$('share-demo').addEventListener('click', () => {
+  const u = usernameEl.value.trim();
+  const p = passwordEl.value.trim();
+  const baseUrl = window.location.origin + window.location.pathname;
+  const shareUrl = `${baseUrl}?username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}&run=1`;
+  
+  // Copy to clipboard
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    const msg = $('share-message');
+    msg.textContent = '✓ Link copied to clipboard! Share it to let others try this demo.';
+    msg.style.display = 'block';
+    setTimeout(() => {
+      msg.style.display = 'none';
+    }, 3000);
+  }).catch(() => {
+    // Fallback if clipboard API is not available
+    const msg = $('share-message');
+    msg.textContent = `Share this link: ${shareUrl}`;
+    msg.style.display = 'block';
+  });
+});
+
 // Update the small username/password indicators based on the in-memory users list
 function updateFieldIndicators() {
   const u = usernameEl.value.trim();
