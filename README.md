@@ -2,6 +2,10 @@
 
 This is a static, client-side simulation that demonstrates how SQL injection can allow bypasses such as `2+2=4` or `' OR '1'='1`. No server or real database is used — everything runs in the browser. That makes it safe to publish publicly (e.g., via GitHub Pages).
 
+Try the demo live (likely URL): https://maremoo2.github.io/sql-injection-playground-static/
+
+Note: If you published Pages to a different URL (or the site hasn't finished deploying), paste the actual Pages URL here and I'll update this link.
+
 ## How to publish
 1. Create a new GitHub repo and push these files to `main`.
 2. In the repo settings -> Pages, choose the `main` branch and root as the source.
@@ -60,7 +64,7 @@ Yes — in spirit. The demo intentionally illustrates the fundamental weakness a
 - `alice / wonderland` — valid credentials; both modes succeed.
 - `alice / ' OR '1'='1` — vulnerable sim shows a bypass; safe mode does not.
 - `whatever / 2+2 = 4` — vulnerable sim detects a true expression and accepts the login (useful to show how input can change logic).
-- `bob / builder` — valid user example.
+<!-- bob removed to simplify the demo -->
 
 ## Short LinkedIn blurb (English)
 “I built a small, safe playground that demonstrates SQL injection without touching any servers. It shows how simple input like `' OR '1'='1` or `2+2=4` can change a query’s logic — and how parameterized queries stop it. Try the demo (client-side only) to learn the basics — and never test systems you don’t own.”

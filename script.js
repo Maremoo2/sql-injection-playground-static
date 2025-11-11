@@ -1,7 +1,6 @@
 // script.js — client-side simulation only
 const users = [
-  { id: 1, username: 'alice', password: 'wonderland' },
-  { id: 2, username: 'bob', password: 'builder' }
+  { id: 1, username: 'alice', password: 'wonderland' }
 ];
 
 const $ = id => document.getElementById(id);
