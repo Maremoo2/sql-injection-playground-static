@@ -32,7 +32,10 @@
         <div class="buttons">
           <button id="try-vuln" type="button">Old (vulnerable)</button>
           <button id="try-safe" type="button">New (safe)</button>
+          <button id="share-demo" type="button" class="share-btn">Share Demo</button>
         </div>
+
+        <div id="share-message" class="share-message" style="display:none;"></div>
 
         <div class="info-row">
           <details class="info-small">
@@ -44,6 +47,17 @@
             <summary>How to use</summary>
             <p>Try a normal credential (alice/wonderland) or an always-true expression (e.g. <code>2+2=4</code>) as password and click <em>Try Vulnerable</em>.</p>
           </details>
+        </div>
+
+        <div class="quick-links">
+          <h3>Quick Try Links</h3>
+          <p class="panel-explain">Click any of these links to try common SQL injection patterns:</p>
+          <ul>
+            <li><a href="?username=alice&password=wonderland&run=1" class="demo-link">Normal login (alice/wonderland)</a></li>
+            <li><a href="?username=alice&password=%27%20OR%20%271%27%3D%271&run=1" class="demo-link">Classic injection (' OR '1'='1)</a></li>
+            <li><a href="?username=whatever&password=2%2B2%3D4&run=1" class="demo-link">Math expression bypass (2+2=4)</a></li>
+            <li><a href="?username=bob&password=1%3D1&run=1" class="demo-link">Always-true expression (1=1)</a></li>
+          </ul>
         </div>
 
       </form>
