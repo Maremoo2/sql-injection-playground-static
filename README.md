@@ -64,7 +64,7 @@ Yes — in spirit. The demo intentionally illustrates the fundamental weakness a
 - `alice / wonderland` — valid credentials; both modes succeed.
 - `alice / ' OR '1'='1` — vulnerable sim shows a bypass; safe mode does not.
 - `whatever / 2+2 = 4` — vulnerable sim detects a true expression and accepts the login (useful to show how input can change logic).
-- `bob / builder` — valid user example.
+<!-- bob removed to simplify the demo -->
 
 ## Short LinkedIn blurb (English)
 “I built a small, safe playground that demonstrates SQL injection without touching any servers. It shows how simple input like `' OR '1'='1` or `2+2=4` can change a query’s logic — and how parameterized queries stop it. Try the demo (client-side only) to learn the basics — and never test systems you don’t own.”
